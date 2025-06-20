@@ -38,12 +38,15 @@ void MAX548X::begin(void)
 
 void MAX548X::setWiper(uint16_t value)
 {
-     uint8_t command = MAX548X_WRITE_WIPER;
-     uint16_t shifted_value = (value << 6);
+     uint8_t command[3]; 
+     command[0] = MAX548X_WRITE_WIPER;
+     command[1] = (value >> 2) & 0xFF;
+     command[2] = (value << 6) & 0xFF;
+
+     spi_set_format(_SPI, 8, SPI_CPOL_0 , SPI_CPHA_0 , SPI_MSB_FIRST);
 
      gpio_put(_selectPin, 0); 
-     spi_write_blocking(_SPI, &command, 1); 
-     spi_write16_blocking(_SPI, &shifted_value, 1);
+     spi_write_blocking(_SPI, command, 3); 
      gpio_put(_selectPin, 1);
 }
 
@@ -52,6 +55,8 @@ void MAX548X::writeWiper()
 {
     uint8_t command = MAX548X_COPY_WIPER_TO_NV;
        
+    spi_set_format(_SPI, 8, SPI_CPOL_0 , SPI_CPHA_0 , SPI_MSB_FIRST);
+
     gpio_put(_selectPin, 0); 
     spi_write_blocking(_SPI, &command, 1); 
     gpio_put(_selectPin, 1); 
@@ -61,6 +66,8 @@ void MAX548X::writeWiper()
 void MAX548X::readWiper()
 {
     uint8_t command = MAX548X_COPY_WIPER_TO_NV;
+
+    spi_set_format(_SPI, 8, SPI_CPOL_0 , SPI_CPHA_0 , SPI_MSB_FIRST);
        
     gpio_put(_selectPin, 0); 
     spi_write_blocking(_SPI, &command, 1); 
